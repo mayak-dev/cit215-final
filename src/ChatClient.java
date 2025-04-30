@@ -25,6 +25,11 @@ public class ChatClient extends ChatOperator
         out = new DataOutputStream(socket.getOutputStream());
     }
 
+    public String getClientId()
+    {
+        return clientId;
+    }
+
     @Override
     public void run()
     {
@@ -32,38 +37,69 @@ public class ChatClient extends ChatOperator
         {
             sendPacket(new JoinRequestPacket(clientId));
 
-            // THIS WILL BE MOVED LATER
             while (true)
             {
                 ChatPacket packet = ChatPacket.read(in);
                 ChatPacket.ID packetId = packet.getId();
 
-                if (packetId == ChatPacket.ID.JOIN_RESPONSE)
+                switch (packetId)
                 {
-                    JoinResponsePacket joinResponsePacket = JoinResponsePacket.read(in);
-
-                    if (!joinResponsePacket.getAccepted())
+                    case JOIN_RESPONSE:
                     {
-                        JOptionPane.showMessageDialog(null, joinResponsePacket.getMessage());
-                        return;
+                        JoinResponsePacket joinResponsePacket = JoinResponsePacket.read(in);
+                        if (joinResponsePacket.getAccepted())
+                        {
+                            ChatForm.getOutput().printf("Welcome, %s!\n", clientId);
+                        }
+                        else
+                        {
+                            ChatForm.getOutput().println(joinResponsePacket.getMessage());
+                            closeConnection();
+                        }
+
+                        break;
                     }
+                    default:
+                        closeConnection();
                 }
             }
         }
         catch (IOException e)
         {
+            closeConnection();
         }
     }
 
-    @Override
     public void sendPacket(ChatPacket packet) throws IOException
     {
         packet.write(out);
         out.flush();
     }
 
-    public void closeConnection() throws IOException
+    @Override
+    public void sendChatMessage(String message)
     {
-        socket.close();
+    }
+
+    public void closeConnection()
+    {
+        try
+        {
+            socket.close();
+        }
+        catch (IOException e)
+        {
+        }
+    }
+
+    public void reject(String message) throws IOException
+    {
+        sendPacket(new JoinResponsePacket(false, message));
+        closeConnection();
+    }
+
+    public DataInputStream getInputStream()
+    {
+        return in;
     }
 }

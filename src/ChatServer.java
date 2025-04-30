@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 public class ChatServer extends ChatOperator
 {
+    private static final int MAX_CLIENTS = 20;
+
     private final String displayName;
 
     private final ServerSocket socket;
@@ -24,27 +26,36 @@ public class ChatServer extends ChatOperator
         {
             try
             {
-                // THIS WILL BE MOVED LATER
                 Socket clientSocket = socket.accept();
                 DataInputStream in = new DataInputStream(clientSocket.getInputStream());
 
                 ChatPacket packet = ChatPacket.read(in);
                 ChatPacket.ID packetId = packet.getId();
-                String clientId = packet.getClientId();
 
                 if (packetId == ChatPacket.ID.JOIN_REQUEST)
                 {
+                    JoinRequestPacket joinRequestPacket = JoinRequestPacket.read(in);
+                    String clientId = joinRequestPacket.getClientId();
+
                     ChatClient client = new ChatClient(clientId, clientSocket);
-                    if (clientId.equals(displayName) || clients.containsKey(clientId))
+                    if (clients.size() >= MAX_CLIENTS)
                     {
-                        client.sendPacket(new JoinResponsePacket(false, "Name already in use. Please choose another one."));
-                        client.closeConnection();
+                        client.reject("The chat is full. Please try again later.");
+                    }
+                    else if (clientId.equals(displayName) || clients.containsKey(clientId))
+                    {
+                        client.reject(String.format("Name '%s' already in use. Please choose another.", clientId));
                     }
                     else
                     {
                         clients.put(clientId, client);
                         client.sendPacket(new JoinResponsePacket(true, null));
+                        new Thread(() -> listen(client)).start();
                     }
+                }
+                else
+                {
+                    socket.close();
                 }
             }
             catch (IOException e)
@@ -53,10 +64,49 @@ public class ChatServer extends ChatOperator
         }
     }
 
-    @Override
-    public void sendPacket(ChatPacket packet) throws IOException
+    private void disconnect(ChatClient client)
+    {
+        clients.remove(client.getClientId());
+        client.closeConnection();
+    }
+
+    private void listen(ChatClient client)
+    {
+        DataInputStream in = client.getInputStream();
+
+        try
+        {
+            while (true)
+            {
+                ChatPacket packet = ChatPacket.read(in);
+                ChatPacket.ID packetId = packet.getId();
+
+                switch (packetId)
+                {
+                    case MESSAGE_SEND:
+                    {
+                        break;
+                    }
+                    default:
+                        disconnect(client);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            disconnect(client);
+        }
+    }
+
+    public void broadcast(ChatPacket packet) throws IOException
     {
         for (ChatClient client : clients.values())
             client.sendPacket(packet);
+    }
+
+    @Override
+    public void sendChatMessage(String message)
+    {
+        ChatForm.getOutput().printf("%s: %s\n", displayName, message);
     }
 }

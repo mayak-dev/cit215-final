@@ -14,12 +14,10 @@ public class ChatPacket
     }
 
     private final ID id;
-    private final String clientId;
 
-    protected ChatPacket(ID _packetId, String _clientId)
+    protected ChatPacket(ID _packetId)
     {
         id = _packetId;
-        clientId = _clientId;
     }
 
     public ID getId()
@@ -27,23 +25,14 @@ public class ChatPacket
         return id;
     }
 
-    public String getClientId()
-    {
-        return clientId;
-    }
-
     public void write(DataOutputStream out) throws IOException
     {
         out.writeInt(id.ordinal());
-        out.writeUTF(clientId);
     }
 
     public static ChatPacket read(DataInputStream in) throws IOException
     {
-        int idOrdinal = in.readInt();
-        String clientId = in.readUTF();
-
-        ID packetId = ID.values()[idOrdinal];
-        return new ChatPacket(packetId, clientId);
+        ID packetId = ID.values()[in.readInt()];
+        return new ChatPacket(packetId);
     }
 }

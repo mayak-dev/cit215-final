@@ -5,5 +5,5 @@ import java.net.SocketImpl;
 public abstract class ChatOperator implements Runnable
 {
     public abstract void run();
-    public abstract void sendPacket(ChatPacket packet) throws IOException;
+    public abstract void sendChatMessage(String message);
 }

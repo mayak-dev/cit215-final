@@ -9,7 +9,7 @@ public class JoinResponsePacket extends ChatPacket
 
     public JoinResponsePacket(boolean _accepted, String _message)
     {
-        super(ID.JOIN_RESPONSE, "");
+        super(ID.JOIN_RESPONSE);
         accepted = _accepted;
         message = _message;
     }
