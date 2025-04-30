@@ -1,32 +1,49 @@
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 
 public class ChatPacket
 {
     public enum ID
     {
-        REQUEST_JOIN,
-        ACCEPT_JOIN,
+        JOIN_REQUEST,
+        JOIN_RESPONSE,
 
-        SEND_MESSAGE,
-        RECEIVE_MESSAGE,
+        MESSAGE_SEND,
+        MESSAGE_RECEIVE,
     }
 
-    private final ID packetId;
+    private final ID id;
+    private final String clientId;
 
-    protected ChatPacket(ID _packetId)
+    protected ChatPacket(ID _packetId, String _clientId)
     {
-        packetId = _packetId;
+        id = _packetId;
+        clientId = _clientId;
     }
 
-    public ID getPacketId()
+    public ID getId()
     {
-        return packetId;
+        return id;
     }
 
-    void write(DataOutputStream out) throws IOException
+    public String getClientId()
     {
-        out.writeInt(packetId.ordinal());
+        return clientId;
+    }
+
+    public void write(DataOutputStream out) throws IOException
+    {
+        out.writeInt(id.ordinal());
+        out.writeUTF(clientId);
+    }
+
+    public static ChatPacket read(DataInputStream in) throws IOException
+    {
+        int idOrdinal = in.readInt();
+        String clientId = in.readUTF();
+
+        ID packetId = ID.values()[idOrdinal];
+        return new ChatPacket(packetId, clientId);
     }
 }

@@ -8,27 +8,18 @@ public class ChatForm extends JFrame
     private JScrollPane chatPanel;
     private JPanel participantPanel;
 
+    private ChatOperator chatOperator;
+
     private void output(String message)
     {
         chatTextArea.append(message + "\n");
     }
 
-    private void formInit()
+    public ChatForm(ChatOperator _chatOperator)
     {
         setContentPane(mainPanel);
-    }
 
-    public ChatForm(String displayName, int port)
-    {
-        formInit();
-
-        output("Starting chat server on port " + port + "...");
-    }
-
-    public ChatForm(String displayName, String ipv4, int port)
-    {
-        formInit();
-
-        output("Joining chat room " + ipv4 + ":" + port + "...");
+        chatOperator = _chatOperator;
+        new Thread(chatOperator).start();
     }
 }

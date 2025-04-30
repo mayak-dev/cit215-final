@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class MenuForm extends JFrame
 {
@@ -8,22 +9,23 @@ public class MenuForm extends JFrame
     private JRadioButton hostRadio;
     private JRadioButton joinRadio;
     private JTextField displayNameField;
-    private JTextField ipv4Field;
+    private JTextField hostField;
     private JTextField portField;
     private JButton startChatButton;
 
-    private void launchChat()
+    private void launchChat() throws IOException
     {
         String displayName = displayNameField.getText();
-        String ipv4 = ipv4Field.getText();
+        String host = hostField.getText();
         int port = Integer.parseInt(portField.getText());
 
-        ChatForm chatForm;
+        ChatOperator chatOperator;
         if (hostRadio.isSelected())
-            chatForm = new ChatForm(displayName, port);
+            chatOperator = new ChatServer(displayName, port);
         else
-            chatForm = new ChatForm(displayName, ipv4, port);
+            chatOperator = new ChatClient(displayName, host, port);
 
+        ChatForm chatForm = new ChatForm(chatOperator);
         chatForm.pack();
         chatForm.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         chatForm.setVisible(true);
@@ -40,7 +42,7 @@ public class MenuForm extends JFrame
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                ipv4Field.setEnabled(joinRadio.isSelected());
+                hostField.setEnabled(joinRadio.isSelected());
             }
         };
         joinRadio.addActionListener(listener);
@@ -51,7 +53,11 @@ public class MenuForm extends JFrame
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                launchChat();
+                try {
+                    launchChat();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
