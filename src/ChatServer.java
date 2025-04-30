@@ -35,7 +35,7 @@ public class ChatServer extends ChatOperator
                 if (packetId == ChatPacket.ID.JOIN_REQUEST)
                 {
                     ChatClient client = new ChatClient(clientId, clientSocket);
-                    if (clients.containsKey(clientId))
+                    if (clientId.equals(displayName) || clients.containsKey(clientId))
                     {
                         client.sendPacket(new JoinResponsePacket(false, "Name already in use. Please choose another one."));
                         client.closeConnection();
