@@ -36,6 +36,7 @@ public class MenuForm extends JFrame
     public MenuForm()
     {
         setContentPane(mainPanel);
+        setResizable(false);
 
         ActionListener listener = new ActionListener()
         {
