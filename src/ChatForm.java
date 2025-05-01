@@ -16,13 +16,6 @@ public class ChatForm extends JFrame
 
     private ChatOperator chatOperator;
 
-    private static PrintStream output;
-
-    public static PrintStream getOutput()
-    {
-        return output;
-    }
-
     private void sendChatMessage()
     {
         chatOperator.sendChatMessage(messageField.getText());
@@ -33,9 +26,8 @@ public class ChatForm extends JFrame
     {
         setContentPane(mainPanel);
 
-        output = new PrintStream(new TextAreaOutputStream(chatTextArea));
-
         chatOperator = _chatOperator;
+        chatOperator.setOutput(new PrintStream(new TextAreaOutputStream(chatTextArea)));
         new Thread(chatOperator).start();
 
         sendButton.addActionListener(new ActionListener()

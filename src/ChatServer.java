@@ -11,7 +11,7 @@ public class ChatServer extends ChatOperator
     private final String displayName;
 
     private final ServerSocket socket;
-    private final HashMap<String, ChatClient> clients = new HashMap<String, ChatClient>();
+    private final HashMap<String, ChatClient> clients = new HashMap<>();
 
     public ChatServer(String _displayName, int port) throws IOException
     {
@@ -22,6 +22,8 @@ public class ChatServer extends ChatOperator
     @Override
     public void run()
     {
+        chatOutput.printf("Running chat server on %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+
         while (true)
         {
             try
@@ -107,6 +109,6 @@ public class ChatServer extends ChatOperator
     @Override
     public void sendChatMessage(String message)
     {
-        ChatForm.getOutput().printf("%s: %s\n", displayName, message);
+        chatOutput.printf("%s: %s\n", displayName, message);
     }
 }

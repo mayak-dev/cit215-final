@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,10 +5,10 @@ import java.net.Socket;
 
 public class ChatClient extends ChatOperator
 {
-    private String clientId;
-    private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private final String clientId;
+    private final Socket socket;
+    private final DataInputStream in;
+    private final DataOutputStream out;
 
     public ChatClient(String _clientId, String host, int port) throws IOException
     {
@@ -33,6 +32,8 @@ public class ChatClient extends ChatOperator
     @Override
     public void run()
     {
+        chatOutput.printf("Connecting to chat room %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+
         try
         {
             sendPacket(new JoinRequestPacket(clientId));
@@ -49,11 +50,11 @@ public class ChatClient extends ChatOperator
                         JoinResponsePacket joinResponsePacket = JoinResponsePacket.read(in);
                         if (joinResponsePacket.getAccepted())
                         {
-                            ChatForm.getOutput().printf("Welcome, %s!\n", clientId);
+                            chatOutput.printf("Welcome, %s!\n", clientId);
                         }
                         else
                         {
-                            ChatForm.getOutput().println(joinResponsePacket.getMessage());
+                            chatOutput.println(joinResponsePacket.getMessage());
                             closeConnection();
                         }
 

@@ -9,7 +9,6 @@ public class JoinRequestPacket extends ChatPacket
     public JoinRequestPacket(String _clientId)
     {
         super(ID.JOIN_REQUEST);
-
         clientId = _clientId;
     }
 
@@ -18,6 +17,7 @@ public class JoinRequestPacket extends ChatPacket
         return clientId;
     }
 
+    @Override
     public void write(DataOutputStream out) throws IOException
     {
         super.write(out);
