@@ -2,9 +2,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.*;
 
 public class ChatClient extends ChatOperator
 {
+    private static final Logger logger = Logger.getLogger(ChatClient.class.getName());
+
     private final String clientId;
     private final Socket socket;
     private final DataInputStream in;
@@ -33,15 +36,19 @@ public class ChatClient extends ChatOperator
     public void run()
     {
         chatInterface.getOutput().println("Connecting to chat room...");
+        logger.log(Level.INFO, "Started chat client");
 
         try
         {
+            logger.log(Level.INFO, "Sending JoinRequestPacket to server");
             sendPacket(new JoinRequestPacket(clientId));
 
             while (true)
             {
                 ChatPacket packet = ChatPacket.read(in);
                 ChatPacket.ID packetId = packet.getId();
+
+                logger.log(Level.INFO, String.format("Packet received from server with ID %s", packetId));
 
                 switch (packetId)
                 {
@@ -73,12 +80,17 @@ public class ChatClient extends ChatOperator
                     }
                     break;
                     default:
+                    {
+                        logger.log(Level.WARNING,
+                                String.format("Received unexpected packet ID %s from server", packetId));
                         closeConnection();
+                    }
                 }
             }
         }
         catch (IOException e)
         {
+            logger.log(Level.WARNING, "Transmission error occurred while processing packets from the server", e);
             closeConnection();
         }
     }
@@ -98,6 +110,7 @@ public class ChatClient extends ChatOperator
         }
         catch (IOException e)
         {
+            logger.log(Level.WARNING, "Failed to send MessageSendPacket to server", e);
         }
     }
 
@@ -109,11 +122,14 @@ public class ChatClient extends ChatOperator
         }
         catch (IOException e)
         {
+            logger.log(Level.INFO, "Something weird happened", e);
         }
     }
 
     public void reject(String message) throws IOException
     {
+        logger.log(Level.INFO, String.format("Rejected connection with message: %s", message));
+
         sendPacket(new JoinResponsePacket(false, message));
         closeConnection();
     }
