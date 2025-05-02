@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Set;
 
 public class ChatServer extends ChatOperator
 {
@@ -19,10 +20,29 @@ public class ChatServer extends ChatOperator
         socket = new ServerSocket(port);
     }
 
+    private void updateParticipants()
+    {
+        Set<String> clientIds = clients.keySet();
+        String[] participants = clientIds.toArray(new String[clientIds.size() + 1]);
+        participants[participants.length - 1] = displayName;
+
+        chatInterface.updateParticipants(participants);
+
+        try
+        {
+            broadcast(new ParticipantsReceivePacket(participants));
+        }
+        catch (IOException e)
+        {
+        }
+    }
+
     @Override
     public void run()
     {
-        chatOutput.printf("Running chat server on %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+        chatInterface.getOutput().printf("Running chat server on %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+
+        updateParticipants();
 
         while (true)
         {
@@ -53,6 +73,8 @@ public class ChatServer extends ChatOperator
                         clients.put(clientId, client);
                         client.sendPacket(new JoinResponsePacket(true, null));
                         new Thread(() -> listen(client)).start();
+
+                        updateParticipants();
                     }
                 }
                 else
@@ -70,6 +92,8 @@ public class ChatServer extends ChatOperator
     {
         clients.remove(client.getClientId());
         client.closeConnection();
+
+        updateParticipants();
     }
 
     private void listen(ChatClient client)
@@ -91,7 +115,7 @@ public class ChatServer extends ChatOperator
                         String sender = client.getClientId();
                         String message = messageSendPacket.getMessage();
 
-                        chatOutput.printf("%s: %s\n", client.getClientId(), messageSendPacket.getMessage());
+                        chatInterface.getOutput().printf("%s: %s\n", client.getClientId(), messageSendPacket.getMessage());
 
                         broadcast(new MessageReceivePacket(sender, message));
                     }
@@ -116,7 +140,7 @@ public class ChatServer extends ChatOperator
     @Override
     public void sendChatMessage(String message)
     {
-        chatOutput.printf("%s: %s\n", displayName, message);
+        chatInterface.getOutput().printf("%s: %s\n", displayName, message);
 
         try
         {

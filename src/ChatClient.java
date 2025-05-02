@@ -32,7 +32,7 @@ public class ChatClient extends ChatOperator
     @Override
     public void run()
     {
-        chatOutput.printf("Connecting to chat room %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+        chatInterface.getOutput().printf("Connecting to chat room %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
 
         try
         {
@@ -50,11 +50,11 @@ public class ChatClient extends ChatOperator
                         JoinResponsePacket joinResponsePacket = JoinResponsePacket.read(in);
                         if (joinResponsePacket.getAccepted())
                         {
-                            chatOutput.printf("Welcome, %s!\n", clientId);
+                            chatInterface.getOutput().printf("Welcome, %s!\n", clientId);
                         }
                         else
                         {
-                            chatOutput.println(joinResponsePacket.getMessage());
+                            chatInterface.getOutput().println(joinResponsePacket.getMessage());
                             closeConnection();
                         }
                     }
@@ -62,9 +62,14 @@ public class ChatClient extends ChatOperator
                     case MESSAGE_RECEIVE:
                     {
                         MessageReceivePacket messageReceivePacket = MessageReceivePacket.read(in);
-
-                        chatOutput.printf("%s: %s\n",
+                        chatInterface.getOutput().printf("%s: %s\n",
                                 messageReceivePacket.getSender(), messageReceivePacket.getMessage());
+                    }
+                    break;
+                    case PARTICIPANTS_RECEIVE:
+                    {
+                        ParticipantsReceivePacket participantsReceivePacket = ParticipantsReceivePacket.read(in);
+                        chatInterface.updateParticipants(participantsReceivePacket.getParticipants());
                     }
                     break;
                     default:

@@ -11,6 +11,8 @@ public class ChatPacket
 
         MESSAGE_SEND,
         MESSAGE_RECEIVE,
+
+        PARTICIPANTS_RECEIVE,
     }
 
     private final ID id;

@@ -2,11 +2,11 @@ import java.io.PrintStream;
 
 public abstract class ChatOperator implements Runnable
 {
-    protected PrintStream chatOutput = System.out;
+    protected ChatInterface chatInterface;
 
-    public void setOutput(PrintStream stream)
+    public void setChatInterface(ChatInterface _chatInterface)
     {
-        chatOutput = stream;
+        chatInterface = _chatInterface;
     }
 
     public abstract void run();

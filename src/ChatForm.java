@@ -3,7 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintStream;
 
-public class ChatForm extends JFrame
+public class ChatForm extends JFrame implements ChatInterface
 {
     private JPanel mainPanel;
     private JTextArea chatTextArea;
@@ -16,6 +16,18 @@ public class ChatForm extends JFrame
 
     private ChatOperator chatOperator;
 
+    private PrintStream output;
+
+    public PrintStream getOutput()
+    {
+        return output;
+    }
+
+    public void updateParticipants(String[] participants)
+    {
+        participantList.setListData(participants);
+    }
+
     private void sendChatMessage()
     {
         chatOperator.sendChatMessage(messageField.getText());
@@ -26,8 +38,10 @@ public class ChatForm extends JFrame
     {
         setContentPane(mainPanel);
 
+        output = new PrintStream(new TextAreaOutputStream(chatTextArea));
+
         chatOperator = _chatOperator;
-        chatOperator.setOutput(new PrintStream(new TextAreaOutputStream(chatTextArea)));
+        chatOperator.setChatInterface(this);
         new Thread(chatOperator).start();
 
         sendButton.addActionListener(new ActionListener()
