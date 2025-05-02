@@ -8,6 +8,7 @@ import java.util.Set;
 public class ChatServer extends ChatOperator
 {
     private static final int MAX_CLIENTS = 20;
+    public static final int MAX_NAME_LENGTH = 12;
 
     private final String displayName;
 
@@ -63,6 +64,10 @@ public class ChatServer extends ChatOperator
                     if (clients.size() >= MAX_CLIENTS)
                     {
                         client.reject("The chat is full. Please try again later.");
+                    }
+                    else if (clientId.isEmpty() || clientId.length() > MAX_NAME_LENGTH)
+                    {
+                        client.reject(String.format("Name must be between 1 and %d characters.", MAX_NAME_LENGTH));
                     }
                     else if (clientId.equals(displayName) || clients.containsKey(clientId))
                     {

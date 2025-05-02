@@ -16,6 +16,15 @@ public class MenuForm extends JFrame
     private void launchChat() throws IOException
     {
         String displayName = displayNameField.getText();
+        if (displayName.isEmpty() || displayName.length() > ChatServer.MAX_NAME_LENGTH)
+        {
+            JOptionPane.showMessageDialog(this,
+                    String.format("Name must be between 1 and %d characters.", ChatServer.MAX_NAME_LENGTH),
+                    null,
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String host = hostField.getText();
         int port = Integer.parseInt(portField.getText());
 
@@ -54,10 +63,16 @@ public class MenuForm extends JFrame
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                try {
+                try
+                {
                     launchChat();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                }
+                catch (IOException e)
+                {
+                    JOptionPane.showMessageDialog(MenuForm.this,
+                            String.format("Failed to launch chat: %s", e.getMessage()),
+                            null,
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
