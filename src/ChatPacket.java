@@ -29,12 +29,12 @@ public class ChatPacket
 
     public void write(DataOutputStream out) throws IOException
     {
-        out.writeInt(id.ordinal());
+        out.writeByte(id.ordinal());
     }
 
     public static ChatPacket read(DataInputStream in) throws IOException
     {
-        ID packetId = ID.values()[in.readInt()];
+        ID packetId = ID.values()[in.readByte()];
         return new ChatPacket(packetId);
     }
 }
