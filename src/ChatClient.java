@@ -57,9 +57,16 @@ public class ChatClient extends ChatOperator
                             chatOutput.println(joinResponsePacket.getMessage());
                             closeConnection();
                         }
-
-                        break;
                     }
+                    break;
+                    case MESSAGE_RECEIVE:
+                    {
+                        MessageReceivePacket messageReceivePacket = MessageReceivePacket.read(in);
+
+                        chatOutput.printf("%s: %s\n",
+                                messageReceivePacket.getSender(), messageReceivePacket.getMessage());
+                    }
+                    break;
                     default:
                         closeConnection();
                 }
@@ -80,6 +87,13 @@ public class ChatClient extends ChatOperator
     @Override
     public void sendChatMessage(String message)
     {
+        try
+        {
+            sendPacket(new MessageSendPacket(message));
+        }
+        catch (IOException e)
+        {
+        }
     }
 
     public void closeConnection()

@@ -87,8 +87,15 @@ public class ChatServer extends ChatOperator
                 {
                     case MESSAGE_SEND:
                     {
-                        break;
+                        MessageSendPacket messageSendPacket = MessageSendPacket.read(in);
+                        String sender = client.getClientId();
+                        String message = messageSendPacket.getMessage();
+
+                        chatOutput.printf("%s: %s\n", client.getClientId(), messageSendPacket.getMessage());
+
+                        broadcast(new MessageReceivePacket(sender, message));
                     }
+                    break;
                     default:
                         disconnect(client);
                 }
@@ -110,5 +117,13 @@ public class ChatServer extends ChatOperator
     public void sendChatMessage(String message)
     {
         chatOutput.printf("%s: %s\n", displayName, message);
+
+        try
+        {
+            broadcast(new MessageReceivePacket(displayName, message));
+        }
+        catch (IOException e)
+        {
+        }
     }
 }
