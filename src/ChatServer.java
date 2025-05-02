@@ -40,7 +40,7 @@ public class ChatServer extends ChatOperator
     @Override
     public void run()
     {
-        chatInterface.getOutput().printf("Running chat server on %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+        chatInterface.getOutput().printf("Running chat server on port %d\n", socket.getLocalPort());
 
         updateParticipants();
 

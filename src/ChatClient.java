@@ -32,7 +32,7 @@ public class ChatClient extends ChatOperator
     @Override
     public void run()
     {
-        chatInterface.getOutput().printf("Connecting to chat room %s:%d\n", socket.getInetAddress(), socket.getLocalPort());
+        chatInterface.getOutput().println("Connecting to chat room...");
 
         try
         {
