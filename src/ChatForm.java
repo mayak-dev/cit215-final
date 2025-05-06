@@ -18,11 +18,13 @@ public class ChatForm extends JFrame implements ChatInterface
 
     private PrintStream output;
 
+    @Override
     public PrintStream getOutput()
     {
         return output;
     }
 
+    @Override
     public void updateParticipants(String[] participants)
     {
         participantList.setListData(participants);

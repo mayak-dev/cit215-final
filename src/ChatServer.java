@@ -133,8 +133,7 @@ public class ChatServer extends ChatOperator
                         String sender = client.getClientId();
                         String message = messageSendPacket.getMessage();
 
-                        chatInterface.getOutput().printf("%s: %s\n",
-                                client.getClientId(), messageSendPacket.getMessage());
+                        chatInterface.getOutput().printf("%s: %s\n", sender, message);
 
                         broadcast(new MessageReceivePacket(sender, message));
                     }
